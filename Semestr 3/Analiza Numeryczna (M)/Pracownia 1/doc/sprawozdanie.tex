@@ -1,0 +1,273 @@
+\documentclass[11pt,wide,leqno]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[OT4, plmath]{polski}
+
+\usepackage{lipsum}
+\usepackage{mathtools}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage[justification=centering]{caption}
+\usepackage[hidelinks]{hyperref}
+\usepackage{multirow}
+\usepackage{titlesec}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{pgfplots}
+\pgfplotsset{width=10cm,compat=1.9}
+
+\usepackage[a4paper, total={6in, 8in}]{geometry}
+
+\newtheorem{theorem}{Twierdzenie}
+\newtheorem*{fact}{Fakt}
+
+\DeclareCaptionFormat{custom}{\texttt{#1#2}{#3}}
+\captionsetup{format=custom}
+
+\title{\textbf{Pracownia z Analizy Numerycznej (M)} \\
+        Sprawozdanie do zadania \textbf{P1.9} \\}
+\date{Wrocław, \today}
+\author{Mateusz Łuczyński}
+
+\begin{document}
+    \maketitle
+    \thispagestyle{empty}
+    \titlelabel{\thetitle.\quad}
+    \section{Wstęp}
+        Fizyka od lat zajmuje się badaniem kosmosu, a co za tym idzie -
+        badaniem zależności pomiędzy ruchem różnych obiektów kosmicznych, a wielkościami opisującymi te obiekty.
+        Jedna z ważniejszych takich zależności pozwala dla zadanego czasu \(t\) wyznaczyć
+        współrzędne planety na jej orbicie eliptycznej:
+        \begin{equation}\label{Coordinates}
+            \begin{pmatrix}
+                a(\cos x - e), \: a\sqrt{1 - e^2}\sin x
+            \end{pmatrix}
+        \end{equation}
+        Wielkości \(a\), \(x\) oraz \(e\) oznaczają kolejno
+        półoś wielką elipsy, 
+        kąt zwany \textit{anomalią mimośrodową}
+        i \textit{mimośród orbity}.
+        Związek pomiędzy anomalią mimośrodową, a mimośrodem orbity opisuje 
+        równanie Keplera
+        \begin{equation}\label{Kepler}
+            x - e\sin x = M \qquad (0 < |e| < 1),
+        \end{equation}
+        gdzie M to \textit{anomalia średnia} zdefiniowana wzorem \(M = 2\pi t/T\),
+        przy czym \(T\) oznacza \textit{okres orbitalny}
+        (definicje tych pojęć można znaleźć w artykule~\cite{GL}, bądź na własną rekę w Internecie).
+        W praktyce, wielkości \(e\) oraz \(M\) są dane, a równanie~\eqref{Kepler}
+        przyjmuje postać równania nieliniowego ze względu na \(x\).
+
+        Celem tego sprawozdania jest przedstawienie trzech
+        numerycznych sposobów rozwiązywania równania Keplera, a dokładniej 
+        metodą bisekcji,
+        specjalnie dobraną metodą iteracyjną (szerzej opisaną w rodziale~\ref{iter}),
+        a także metodą Newtona. 
+        Rozważone zostanie również zagadnienie doboru przybliżeń startowych dla tych metod.
+
+        Wszystkie pomiary zostały wykonane przy użyciu kodu zawartego w pliku
+        \texttt{program.jl}, wykorzystując algorytmy, których implementacja znajduje się w pliku
+        \texttt{methods.jl}. Do sprawozdania została również załączona
+        interaktywna wersja tych programów w środowisku \texttt{Jupyter}
+        (plik \texttt{program.ipynb}).
+
+    \section{Pierwsze podejście}\label{bi}
+        \begin{fact}
+            Dla dowolnej liczby \(x \in \mathbb{R}\) zachodzi
+            \(-|x| \leq x \leq |x|\)
+        \end{fact}
+        Przekształcając równanie~\eqref{Kepler} otrzymujemy \(x = M  + e\sin x\).
+        Korzystając z wcześniej wspomnianego faktu wprowadzamy następującą nierówność
+        \begin{equation*}
+           M -|e| \leq M - |e\sin x| \leq M + e\sin x \leq M + |e\sin x| \leq M + |e|
+        \end{equation*}
+        Widać zatem, że rozwiązanie równania Keplera należy do przedziału
+        \(\left[M -|e|, M + |e|\right]\). 
+
+        Można jednak otrzymać lepsze oszacowanie.
+        Rozważmy funkcję 
+        \begin{equation}\label{Function}
+            f(x) = x - e\sin x - M.
+        \end{equation} 
+        Znalezienie rozwiązania równania~\eqref{Kepler}
+        sprowadza się do znalezienia zera funkcji \(f\). 
+        Zakładając, że mamy do czynienia z orbitami eliptycznymi i biorąc pod uwagę jedynie pierwszą połowę ruchu obiektu po takiej orbicie, tj. przyjmując \(0 \leq e \leq 1\) oraz \(M \in \left[0,\pi\right]\), mamy
+        \(f(M) = -e\sin M \leq 0\) oraz \(f(M + e) = e - e\sin(M + e) \geq 0\). Wiemy zatem, że ciągła funkcja \(f\)
+        zmienia znak na przedziale \(\left[M,M + e\right]\). W ten sposób otrzymujemy nowe, satysfakcjonujące szacowanie \(x\)
+        \begin{equation}\label{Interval}
+            M \leq x \leq M + e
+        \end{equation}
+        Analogiczne nierówności zachodzą również wtedy, kiedy  
+        \(M \in \left[\pi,2\pi\right]\). Szacowanie~\eqref{Interval}
+        przyjmuje w tym wypadku postać \(M - e \leq x \leq M\). W dalszej części
+        sprawozdania będziemy jednak bez straty ogólności rozważać jedynie pierwszy przypadek.
+
+        Znając już przedział~\eqref{Interval}, w którym znajduje się rozwiązanie równania Keplera
+        można zastosować metodę bisekcji do znalezienia zera funkcji~\eqref{Function}. 
+        Jako \(e\) oraz \(M\) przyjęto ich faktyczne wartości dla
+        Ziemi, to znaczy \(e = 0.0167086\) oraz \(M = 0.17202124303\)
+        (dla czasu \(t = 10\)). Wyniki obliczeń 
+        dla kolejnych iteracji algorytmu przedstawiono
+        w tabeli~\ref{table:one}.
+        \begin{table}[h]
+            \centering
+            \caption{Kolejne przybliżenia \(x\) otrzymane metodą bisekcji}\label{table:one}
+            \renewcommand{\arraystretch}{1.5}
+            \begin{tabular}{|c|c|c|c|}\hline
+                Iteracja & \(x_i\) & \(f(x_i)\) & \(\varepsilon_i\) \\ \hline
+                1 & \(0.1803755430299526\) & \(5.36 \times 10^{-3}\) & ----- \\ \hline
+                2 & \(0.1761983930299526\) & \(1.25 \times 10^{-3}\) & \(2.37 \times 10^{-2}\) \\ \hline
+                3 & \(0.1741098180299526\) & \(-8.06 \times 10^{-4}\) & \(1.20 \times 10^{-2}\)\\ \hline
+                4 & \(0.1751541055299526\) & \(2.21 \times 10^{-4}\) & \(5.96 \times 10^{-3}\)\\ \hline
+                5 & \(0.1746319617799526\) & \(-2.92 \times 10^{-4}\) & \(2.99 \times 10^{-3}\) \\ \hline
+                6 & \(0.1748930336549526\) & \(-3.56 \times 10^{-5}\) & \(1.49 \times 10^{-3}\) \\ \hline
+                7 & \(0.1750235695924526\) & \(9.28 \times 10^{-5}\) & \(7.46 \times 10^{-4}\) \\ \hline
+                8 & \(0.1749583016237026\) & \(2.86 \times 10^{-5}\) & \(3.73 \times 10^{-4}\) \\ \hline
+                \multicolumn{4}{c}{\vdots} \\ \hline
+                29 & \(0.1749291810547883\) & \(1.69 \times 10^{-11}\) & \(1.78 \times 10^{-10}\) \\ \hline
+                30 & \(0.1749291810392272\) & \(1.59 \times 10^{-12}\) & \(8.90 \times 10^{-11}\) \\ \hline
+                31 & \(0.1749291810314467\) & \(-6.06 \times 10^{-12}\) & \(4.45 \times 10^{-11}\) \\ \hline
+                32 & \(0.1749291810353369\) & \(-2.23 \times 10^{-12}\) & \(2.22 \times 10^{-11}\) \\ \hline
+            \end{tabular}
+            \caption*{
+            \(x_i\) -- przybliżenie \(x\) dla \(i\)-tej iteracji algorytmu, \\
+            \(f(x_i)\) -- wartość funkcji~\eqref{Function} w punkcie \(x_i\), \\
+            \(\varepsilon_i\) -- błąd \(x_i\) względem poprzedniego przybliżenia}
+        \end{table}
+        
+        Porównując otrzymane wartości z dokładnym wynikiem 
+        \(x = 0.17492918103\ldots\) widać, że końcowe przybliżenia są 
+        zadowalające. Mniej zadowalająca jest jednak liczba iteracji potrzebna, by
+        otrzymać wynik z taką dokładnością. Wiadomym faktem jest, że metoda bisekcji
+        osiąga zbieżność na poziomie conajwyżej liniowym (każda iteracja algorytmu 
+        znajduje jedną dokładną cyfrę binarną wyniku). Skutkuje to tym, że aby wyprodukować
+        wynik mający 11 dokładnych cyfr dziesiętnych, algorytm potrzebuje \(\approx 33\) iteracji (pod warunkiem, że początkowy przedział jest odpowiednio dobrany).
+        Chcielibyśmy móc jednak znajdywać rozwiązanie szybciej oraz dokładniej.
+
+    \section{Drugie podejście}\label{iter}
+        Rozważmy teraz specjalnie dobraną metodę iteracyjną
+        \(x_{n+1} = \varphi(x_n)\), gdzie
+        \begin{equation}\label{phi}
+            \varphi(x_n) = e\sin x_n + M
+        \end{equation}
+        Dla \(x\) spełniającego równanie~\eqref{Kepler} mamy
+        \(\varphi(x) = e\sin x + M = x\), zatem szukane rozwiązanie jest punktem
+        stałym funkcji \(\varphi\). Ponadto, pochodna \(\varphi\) 
+        zadana wzorem \(\varphi'(x) = e\cos x\) spełnia nierówność
+        \(|\varphi'(x)| \leq e < 1\), dla dowolnego \(x \in \mathbb{R}\).
+        Wiemy zatem, że \(\varphi\) zbiega do rozwiązania równania Keplera niezależnie od
+        wyboru przybliżenia początkowego. Sensownym jednak wydaje się przyjęcie za
+        \(x_0 = 0\), gdyż dla takiego przybliżenia w kolejnym kroku otrzymujemy
+        \(x_1 = e\sin 0 + M = M\), a z wcześniejszych rozważań wiadomo, że
+        \(x \in \left[M, M + e\right]\). Wybrane w ten sposób
+        przybliżenie może zatem pomóc w zminimalizowaniu iteracji algorytmu potrzebnych aby uzyskać
+        wynik na satysfkacjonującym poziomie.
+
+        Do testów przyjęto identyczne wartości \(e\) oraz \(M\) jak w przypadku metody bisekcji.
+        Wyniki przedstawiono w tabeli~\ref{table:two}.
+        \begin{table}[h]
+            \centering
+            \caption{Kolejne przybliżenia \(x\) otrzymane metodą~\eqref{phi}
+                    dla \(x_0 = 0\)}\label{table:two}
+            \renewcommand{\arraystretch}{1.5}
+            \begin{tabular}{|c|c|c|c|} \hline
+                Iteracja & \(x_i\) & \(f(x_i)\) & \(\varepsilon_i\) \\ \hline
+                1 & 0.1720212430299526 & \(-2.86 \times 10^{-3}\) & --- \\ \hline
+                2 & 0.1748813227385751 & \(-4.71 \times 10^{-5}\) & \(1.64 \times 10^{-2}\) \\ \hline
+                3 & 0.1749283935925948 & \(-7.74 \times 10^{-7}\) & \(2.69 \times 10^{-4}\) \\ \hline
+                4 & 0.1749291680812959 & \(-1.27 \times 10^{-8}\) & \(4.43 \times 10^{-6}\) \\ \hline
+                5 & 0.1749291808244301 & \(-2.10 \times 10^{-10}\) & \(7.28 \times 10^{-8}\) \\ \hline
+                6 & 0.1749291810341007 & \(-3.45 \times 10^{-12}\) & \(1.20 \times 10^{-9}\) \\ \hline
+                7 & 0.1749291810375505 & \(-5.68 \times 10^{-14}\) & \(1.97 \times 10^{-11}\) \\ \hline
+                8 & 0.1749291810376073 & \(-9.16 \times 10^{-16}\) & \(3.24 \times 10^{-13}\) \\ \hline
+            \end{tabular}
+            \caption*{
+            \(x_i\) -- przybliżenie \(x\) dla \(i\)-tej iteracji algorytmu, \\
+            \(f(x_i)\) -- wartość funkcji~\eqref{Function} w punkcie \(x_i\), \\
+            \(\varepsilon_i\) -- błąd \(x_i\) względem poprzedniego przybliżenia}
+        \end{table}
+        Na pierwszy rzut oka widać, że algorytm wykorzystujący metodę~\eqref{phi} potrzebował zdecydowanie mniejszej
+        ilości iteracji od tego korzystającego z metody bisekcji. Mianowicie wynik z dokładnością do 
+        11 cyfr znaczących otrzymany został już w kroku szóstym, natomiast kolejne dwie iteracje
+        zwiększyły tą dokładność do cyfr czternastu. Analizując wykładniki potęg stojących przy błędach względnych
+        kolejnych przybliżeń można zauważyć, że każdy krok metody znajduje średnio dwie nowe cyfry dokładne.
+        Ponownie mamy zatem do czynienia ze zbieżnością liniową, ale lepszą niż w przypadku metody bisekcji. 
+        Okazuje się jednak, że liczbę iteracji można zmniejszyć jeszcze bardziej.
+        
+    \section{Finalne podejście}
+        Jedną z najpopularniejszych metod rozwiązywania równań nieliniowych
+        jest zdecydowanie metoda Newtona (zwana również metodą Newtona-Raphsona), która dla zadanej
+        funkcji \(f\), jej pochodnej \(f'\) oraz przybliżenia początkowego \(x_0\), konstruuje
+        kolejne przybliżenia miejsca zerowego tej funkcji ze wzoru
+        \begin{equation}
+            x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)}
+        \end{equation}
+        Nic nie stoi zatem na przeszkodzie, żeby zastosować ją również do znalezienia rozwiązania
+        równania Keplera. Mamy \(f(x_n) = x_n - e\sin x_n - M\),
+        \(f'(x_n) = 1 - e\cos x_n\). Pozostaje jedynie ustalić dobre przybliżenie
+        startowe \(x_0\).
+
+        Okazuje się, że dobrego kandydata na punkt \(x_0\) można wytypować wykorzystując 
+        pewną prostą obserwacje.
+        Rozważmy prostą przechodzącą przez punkty \(f(M)\) oraz \(f(M + e)\). Korzystając z szacowań
+        wyprowadzonych w rozdziale~\ref{bi} dotyczących wartości funkcji \(f\) w tych punktach wiemy, że tak zadana prosta musi przeciąć oś \(x\) w jakimś miejscu, które oznaczymy jako \(x_0\).
+        Tangens kąta \(\alpha\) pomiędzy osią \(x\), a odcinkiem łączącym punkty \(f(M)\) i \(f(M + e)\) można wyrazić na dwa równoważne sposoby
+        \begin{equation}\label{x}
+            \tan \alpha = \frac{f(M + e) - f(M)}{(M + e) - M} = \frac{0 - f(M)}{x_0 - M}
+        \end{equation}
+        Rozpisując wartości funkcji \(f\) z jej definicji oraz przekształcając w prosty sposób równanie~\eqref{x} otrzymujemy zatem przybliżenie początkowe
+        \begin{equation}\label{x0}
+            x_0 = M + \frac{e\sin M}{1 - \sin(M + e) + \sin M}.
+        \end{equation}
+
+        Przeprowadzając eksperymenty numeryczne dla tak wybranego przybliżenia okazuje się, że metoda Newtona
+        zwraca wynik z ogromną dokładnością po wykonaniu zaledwie jednej iteracji. Dla porównania, metoda z rozdziału~\ref{iter}
+        dla tego samego przybliżenia \(x_0\) wciąż potrzebuje \(\approx 5\) iteracji do wyliczenia wyniku z taką precyzją.
+        
+        Biorąc średnią ilość iteracji algorytmu potrzebnych do uzyskania dokładności 
+        rzędu \(10^{-16}\), dla kolejnych wartości \(M \in [0,\pi]\) i różnych ekscentryczności
+        otrzymujemy \(\approx 2.57\) iteracji dla \(e = 0.01\). Wartość ta zwiększa się do 
+        \(\approx 6\) iteracji dla dużych \(e\) (w tym przypadku \(e = 0.9\)). Metoda~\eqref{phi}
+        dla tych samych \(e\) i tej samej dokładności potrzebuje odpowiednio \(\approx 6.9\) oraz \(\approx 71.8\) iteracji.
+        Metoda bisekcji natomiast, \(\approx 46.07\) i, co zaskakujące, \(\approx 52.17\) iteracji. Widać zatem, że
+        metoda Newtona przeważa nad pozostałymi zarówno dla małych jak i dużych wartości \(e\). Widać także, że
+        metoda z rodziału~\ref{iter} zaczyna być bardzo niestabilna dla dużych ekscentryczności, podczas
+        gdy w metodzie bisekcji takie zjawisko nie występuje.
+
+    \section{Podsumowanie}
+        Przeprowadzając ekperymenty numeryczne i analizując wydajność rozważonych trzech metod
+        okazało się, że spośród nich najlepsza do rozwiązywania równania Keplera jest metoda Newtona.
+        Testy wykazały, iż zwraca ona wynik w najmniejszej ilości iteracji, jednocześnie zapewniając jego największą dokładność.
+        Eksperymenty dla różnych wartości wejściowych pokazały również, że pomimo
+        lepszych wyników dla małych danych, metoda~\eqref{phi} wypada gorzej od metody bisekcji dla dużych \(e\).
+
+        Nawiązując do wstępu sprawozdania, rysunek~\ref{orbity} przedstawia orbitę Ziemi.
+        Została ona nakreślona w dwuwymiarowym układzie współrzędnych (przyjmujemy, że Słońce znajduje się w punkcie \((0,0)\)),
+        korzystając ze wzoru~\eqref{Coordinates} dla wartości \(x\) znalezionych przy użyciu metody Newtona i odpowiadających kolejnym wartościom \(M\) z 
+        przedziału \([0,2\pi]\). Zaznaczona została również pozycja Ziemi na początku roku, tzn. kiedy \(t = 0\).
+        
+        \begin{center}
+            \begin{tikzpicture}\label{orbity}
+                \begin{axis}[
+                    xlabel={Współrzędna \(x\) [km]},
+                    ylabel={Współrzędna \(y\) [km]},
+                ]
+                    \addplot[style=thick]file{../prog/Ziemia.txt};
+                    \addlegendentry{Orbita Ziemi}
+                    \addplot[mark=*]coordinates{(1.470984494729022e8, 0.0)};
+                \end{axis}        
+            \end{tikzpicture}
+        \end{center}
+
+
+    \begin{thebibliography}{2}
+        \itemsep2pt
+        \bibitem{REHG} R. Esmaelzadeh, H. Ghadiri, Appropriate Starter for Solving the
+                        Kepler's Equation, International Journal of Computer Applications
+                        89 (2014), 31--38.
+        \bibitem{GRS} G. R. Smith, A simple, efficient starting value for the iterative solution of Kepler's equation,
+                    Celestial Mechanics 19 (1979), 163--166.
+        \bibitem{GL} G. Łukaszewicz, Równanie Keplera w ``Principiach Newtona'',
+                    pismo ``Delta'' (październik 2021), ISSN 0137--3005 
+    \end{thebibliography}
+\end{document}
