@@ -24,3 +24,9 @@ Collection of some tasks i did as part of my university courses at Uniwersytet W
 - Matematyka Dyskretna (M)
 - Metody Implementacji Algorytmów
 - Programowanie Funkcyjne
+
+# 4-th semester
+- Differential Equations 1R
+- Algorithms and Data Structures
+- Computer Systems Architecture
+- Artificial Intelligence
