@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Declaration Generator v1.0</title>
+    <link rel="stylesheet" href="result.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+</head>
+<body>
+    <table>
+        <tr>
+            <th colspan="4" class="info"><%= course %></th>
+            <th colspan="6" class="info"><%= name %> <%= surname %></th>
+        </tr>
+        <tr>
+            <% for(let idx = 1; idx <= 10; idx++) { %>
+                <th><%=idx%></th>
+            <% } %>
+        </tr>
+        <tr>
+            <% for(let idx = 1; idx <= 10; idx++) { %>
+                <th><%= locals[idx]==1 ? "X" : "" %></th>
+            <% } %>
+        </tr>
+    </table>
+</body>
+</html>

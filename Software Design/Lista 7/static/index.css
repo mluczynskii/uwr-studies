@@ -1,0 +1,71 @@
+body {
+    font-family: 'Roboto', sans-serif;
+    font-size: 30px;
+    background-image: url('background.jpg');
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    background-color: white;
+    border-radius: 10%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80%;
+    width: 60%;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.submit-container {
+    display: flex;
+    justify-content: center;
+    margin: 30px;
+}
+
+button {
+    font-family: "Roboto";
+    font-size: 35px;
+    width: 30%;
+    height: 75px;
+}
+
+.checkbox {
+    width: 30px;
+    height: 30px;
+}
+
+.info {
+    height: 40px;
+    font-size: 30px;
+    font-family: "Roboto";
+}
+
+.input-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px;
+    gap: 10px;
+}
+
+.msg-container {
+    margin-top: 30px;
+    width: 100%;
+    text-align: center;
+}
+
+.msg {
+    color: rgb(181, 0, 0);
+    font-weight: bold;
+}
+
+form {
+    width: 90%;
+}

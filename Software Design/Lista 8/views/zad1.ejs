@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zad1</title>
+</head>
+<body>
+    <form method="post" enctype="multipart/form-data">
+        <input type="file" name="meme" accept="image/*" />
+        <button>Upload</button>
+    </form>
+    <% if(locals.filename) { %>
+        <img src="<%=locals.filename%>" width="400" height="400" />
+    <% } %>
+</body>
+</html>

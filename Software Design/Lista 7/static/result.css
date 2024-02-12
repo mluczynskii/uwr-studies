@@ -1,0 +1,19 @@
+body {
+    font-family: "Roboto";
+    font-size: 30px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+  
+th, td {
+    border: 1px solid black;
+    padding: 8px;
+    text-align: center;
+}
+
+th[colspan="4"] {
+    background-color: #a5a5a5; /* Add background color for the colspan cells */
+}

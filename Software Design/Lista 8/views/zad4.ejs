@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zad4</title>
+</head>
+<body>
+    <form method="POST" >
+        <button type="submit">Toggle cookie</button>
+    </form>
+    <% if(locals.cookie) { %>
+        <h1><%=locals.cookie%></h1>
+    <% } %>
+</body>
+</html>
