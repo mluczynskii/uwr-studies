@@ -1,0 +1,11 @@
+.metals
+.g8
+.vscode
+
+target/
+project/target/
+project/project/
+
+Dockerfile
+.dockerignore
+docker-compose.yml

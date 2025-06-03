@@ -1,0 +1,12 @@
+@import database.Lecture 
+
+@(lecture: Lecture, enrollments: Seq[String])
+
+<html>
+  <body>
+    <h1>@lecture.id - @lecture.name</h1>
+    @for(enrollment <- enrollments) {
+      <h2>@enrollment</h2>
+    }
+  </body>
+</html>

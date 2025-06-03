@@ -1,0 +1,8 @@
+GET / controllers.HomeController.index()
+
+GET /assets/*file controllers.Assets.versioned(path="/public", file: Asset)
+
+GET /students controllers.ZapisyController.students()
+GET /students/:index controllers.ZapisyController.student(index: Int)
+GET /lectures controllers.ZapisyController.lectures()
+GET /lecture/:id controllers.ZapisyController.lecture(id: String)

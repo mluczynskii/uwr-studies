@@ -1,0 +1,9 @@
+@(students: Seq[String])
+
+<html>
+  <body>
+    @for(student <- students) {
+      <h1>@student</h1>
+    }
+  </body>
+</html>
